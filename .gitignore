@@ -1,0 +1,4 @@
+node_modules/
+.idea
+thicket-zmq-fiber.iml
+*.log

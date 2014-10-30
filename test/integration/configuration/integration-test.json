@@ -1,0 +1,8 @@
+{
+  "default": {
+    "sendAndReceive": {
+      "pub1": "tcp://0.0.0.0:9021",
+      "pub2": "tcp://0.0.0.0:9022"
+    }
+  }
+}

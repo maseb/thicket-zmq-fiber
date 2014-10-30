@@ -1,0 +1,19 @@
+{
+  "name": "thicket-zmq-fiber",
+  "version": "0.0.1",
+  "description": "A ZMQ-backed fiber for a thicket Exchange",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-integration": "node test/integration/runner.js --configurationFiles=test/integration/configuration/integration-test.json --scopes=default"
+  },
+  "author": "Mason Browne <m.public@academy15.com> (http://www.masonbrowne.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^2.3.10",
+    "mori": "^0.2.9",
+    "thicket": "^1.0.1",
+    "underscore": "^1.7.0",
+    "zmq": "^2.8.0"
+  }
+}
