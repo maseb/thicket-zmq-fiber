@@ -15,5 +15,9 @@
     "thicket": "^1.0.1",
     "underscore": "^1.7.0",
     "zmq": "^2.8.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maseb/thicket-zmq-fiber.git"
   }
 }
