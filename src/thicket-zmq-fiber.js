@@ -316,6 +316,8 @@ var mod = function(
           .lastly(function() {
             this._fetchAddressPeriodic.start();
           })
+      } else {
+        this._fetchAddressPeriodic.start();
       }
     }
   });
