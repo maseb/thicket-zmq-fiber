@@ -95,6 +95,7 @@ var mod = function(
       }
 
       if (this._fetchAddressPeriodic) {
+        this._fetchAddressPeriodic.stop();
         this._fetchAddressPeriodic.dispose();
         this._fetchAddressPeriodic = null;
       }
@@ -112,6 +113,8 @@ var mod = function(
 
 
     start: Promise.method(function() {
+      this._fetchAddressPeriodic.start();
+
       return Promise
         .bind(this)
         .then(function() {
@@ -130,6 +133,8 @@ var mod = function(
 
 
     stop: Promise.method(function() {
+      this._fetchAddressPeriodic.stop();
+
       this._teardownPub();
       this._teardownSub();
     }),
