@@ -31,7 +31,7 @@ var mod = function(
       opts = Options.fromObject(opts);
       this._zmqTopic             = ZMQ_DEFAULT_TOPIC;
       this._pubAddress           = opts.getOrError("pubAddress");
-      this._currentAddresses     = opts.getOrError("addresses");
+      this._currentAddresses     = opts.getOrElse("addresses", []);
       this._nextAddresses        = this._currentAddresses;
       this._refreshAddressesFn   = opts.getOrError("refreshAddressesFn");
       this._refreshInterval      = opts.getOrError("refreshInterval");
@@ -291,8 +291,11 @@ var mod = function(
     _resolveAddressChanges: function() {
       this._fetchAddressPeriodic.stop();
 
-      var changes = _.difference(this._currentAddresses, this._nextAddresses);
-      if (changes.length) {
+      var changes =
+            (_.difference(this._currentAddresses, this._nextAddresses).length > 0) ||
+            (_.difference(this._nextAddresses, this._currentAddresses).length > 0);
+
+      if (changes) {
         this._currentAddresses = this._nextAddresses;
         return Promise
           .bind(this)
