@@ -187,7 +187,7 @@ var mod = function(
 
     _teardownPub: function() {
       if (this._pub) {
-        Log.debug("Closing pub connection", this.toString());
+        Log.trace("Closing pub connection", this.toString());
         this._pub.close();
         this._pub = null;
       }
@@ -197,7 +197,7 @@ var mod = function(
 
 
     _cyclePub: Promise.method(function() {
-      Log.debug("Cycling pub", this.toString());
+      Log.trace("Cycling pub", this.toString());
       this._teardownPub();
 
       this._pub = zmq.socket("pub");
@@ -207,9 +207,9 @@ var mod = function(
       }, this));
 
       this._egressChannel.subscribe(_.bind(function(msg) {
-        Log.debug("Egress subscriber got message", this.toString(), msg);
+        Log.trace("Egress subscriber got message", this.toString(), msg);
         if (this._pubSubGuard.applied("pubReady")) {
-          Log.debug("Sending", "from", msg.from, "to", msg.to, this.toString());
+          Log.trace("Sending", "from", msg.from, "to", msg.to, this.toString());
           this._pub.send(this._serde.serialize(msg));
         }
       }, this));
@@ -218,7 +218,7 @@ var mod = function(
 
     _teardownSub: function() {
       if (this._sub) {
-        Log.debug("Closing sub connection", this.toString());
+        Log.trace("Closing sub connection", this.toString());
         this._sub.close();
         this._sub = null;
       }
@@ -227,7 +227,7 @@ var mod = function(
 
 
     _cycleSub: Promise.method(function() {
-      Log.debug("Cycling sub", this.toString());
+      Log.trace("Cycling sub", this.toString());
       this._teardownSub();
       this._sub = zmq.socket("sub");
 
@@ -237,7 +237,7 @@ var mod = function(
 
 
       this._sub.on("message", _.bind(function(msg) {
-        Log.debug("Sub got message", this.toString(), msg.toString());
+        Log.trace("Sub got message", this.toString(), msg.toString());
         if (this._pubSubGuard.applied("subReady")){
           this._ingressChannel.publish(this, this._serde.deserialize(msg.toString()));
         }
@@ -246,7 +246,7 @@ var mod = function(
 
 
     _bindPub: Promise.method(function() {
-      Log.debug("Binding pub", this.toString());
+      Log.trace("Binding pub", this.toString());
       var bindAsync = Promise.promisify(this._pub.bind, this._pub);
       return bindAsync(this._pubAddress)
         .bind(this)
@@ -260,7 +260,7 @@ var mod = function(
     _connectSubs: Promise.method(function() {
       var others = _.without(this._currentAddresses, this._pubAddress);
 
-      Log.debug("Connecting sub", this.toString(), others);
+      Log.trace("Connecting sub", this.toString(), others);
 
 
       this._sub.monitor(this._zmqMonitorTimeout);
@@ -279,7 +279,7 @@ var mod = function(
       }, this));
 
       this._sub.on("connect", _.bind(function(val, endpoint) {
-        Log.debug("Sub connect event", this.toString(), val, endpoint);
+        Log.trace("Sub connect event", this.toString(), val, endpoint);
         if (_.contains(others, endpoint)) {
           connectLatch.step();
         }
