@@ -37,6 +37,7 @@ var mod = function(
           runtime = new Runtime(),
           scheduler = runtime.scheduler(),
           fiber1 = new ZmqFiber({
+            shouldMonitorSubConnect: true,
             pubAddress: pubAddress1,
             addresses: addresses,
             refreshAddressesFn: fn,
@@ -47,6 +48,7 @@ var mod = function(
             zmqMonitorInterval: 3
           }),
           fiber2 = new ZmqFiber({
+            shouldMonitorSubConnect: true,
             pubAddress: pubAddress2,
             addresses: addresses,
             refreshAddressesFn: fn,

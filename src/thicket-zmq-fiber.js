@@ -29,14 +29,17 @@ var mod = function(
       InMemoryFiber.prototype.initialize.apply(this, arguments);
 
       opts = Options.fromObject(opts);
-      this._zmqTopic             = ZMQ_DEFAULT_TOPIC;
-      this._pubAddress           = opts.getOrError("pubAddress");
-      this._currentAddresses     = opts.getOrElse("addresses", []);
-      this._nextAddresses        = this._currentAddresses;
-      this._refreshAddressesFn   = opts.getOrError("refreshAddressesFn");
-      this._refreshInterval      = opts.getOrError("refreshInterval");
-      this._scheduler            = opts.getOrError("scheduler");
-      this._serde                = opts.getOrElseFn("serde", function() {
+      this._zmqTopic                   = ZMQ_DEFAULT_TOPIC;
+
+      // Only supported in ZMQ > 3.2.1
+      this._shouldMonitorSubConnect    = opts.getOrElse("shouldMonitorSubConnect", false);
+      this._pubAddress                 = opts.getOrError("pubAddress");
+      this._currentAddresses           = opts.getOrElse("addresses", []);
+      this._nextAddresses              = this._currentAddresses;
+      this._refreshAddressesFn         = opts.getOrError("refreshAddressesFn");
+      this._refreshInterval            = opts.getOrError("refreshInterval");
+      this._scheduler                  = opts.getOrError("scheduler");
+      this._serde                      = opts.getOrElseFn("serde", function() {
         return new JSONSerDe();
       });
 
@@ -262,28 +265,29 @@ var mod = function(
 
       Log.trace("Connecting sub", this.toString(), others);
 
+      if (this._shouldMonitorSubConnect) {
+        this._sub.monitor(this._zmqMonitorTimeout);
 
-      this._sub.monitor(this._zmqMonitorTimeout);
+        var connectLatch = new CountdownLatch(others.length, _.bind(function(err) {
+          this._sub.unmonitor();
+          if (err) {
+            Log.error("Error checking for connection success", err);
+            return;
+          }
 
-      var connectLatch = new CountdownLatch(others.length, _.bind(function(err) {
-        this._sub.unmonitor();
-        if (err) {
-          Log.error("Error checking for connection success", err);
-          return;
-        }
+          this._statusChannel.publish(this, {
+            mT: "subsConnected",
+            addresses: others
+          });
+        }, this));
 
-        this._statusChannel.publish(this, {
-          mT: "subsConnected",
-          addresses: others
-        });
-      }, this));
-
-      this._sub.on("connect", _.bind(function(val, endpoint) {
-        Log.trace("Sub connect event", this.toString(), val, endpoint);
-        if (_.contains(others, endpoint)) {
-          connectLatch.step();
-        }
-      }, this));
+        this._sub.on("connect", _.bind(function(val, endpoint) {
+          Log.trace("Sub connect event", this.toString(), val, endpoint);
+          if (_.contains(others, endpoint)) {
+            connectLatch.step();
+          }
+        }, this));
+      }
 
       _.each(others, function(address) {
         this._sub.connect(address);
