@@ -1,6 +1,6 @@
 {
   "name": "thicket-zmq-fiber",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A ZMQ-backed fiber for a thicket Exchange",
   "main": "index.js",
   "scripts": {

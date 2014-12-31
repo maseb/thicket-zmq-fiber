@@ -298,8 +298,6 @@ var mod = function(
 
 
     _resolveAddressChanges: function() {
-      this._fetchAddressPeriodic.stop();
-
       var changes =
             (_.difference(this._currentAddresses, this._nextAddresses).length > 0) ||
             (_.difference(this._nextAddresses, this._currentAddresses).length > 0);
@@ -308,20 +306,15 @@ var mod = function(
         this._currentAddresses = this._nextAddresses;
         return Promise
           .bind(this)
-          .then(function() {
+          .then(function () {
             return this._cycleSub();
           })
-          .then(function() {
+          .then(function () {
             return this._connectSubs();
           })
-          .caught(function(err) {
+          .caught(function (err) {
             Log.fatal("Error cycling addresses", err);
           })
-          .lastly(function() {
-            this._fetchAddressPeriodic.start();
-          })
-      } else {
-        this._fetchAddressPeriodic.start();
       }
     }
   });
